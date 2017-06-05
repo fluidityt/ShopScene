@@ -9,6 +9,7 @@
 import SpriteKit
 import GameplayKit
 
+let tex = SKTexture(noiseWithSmoothness: 22, size: CGSize(width: 50, height: 50), grayscale: false)
 
 typealias Price = Int
 
@@ -29,10 +30,10 @@ struct Costume {
   // Hard-code any new costumes you create here (this is a "master list" of costumes):
   // (make sure all of your costumes have a unique name, or the program will not work properly)
   static let
-  gray  = Costume(name: "Gray Shirt",  texture: SKTexture(imageNamed: "grayshirt"),  price:  0), // Gray shirt is our default shirt
-  red   = Costume(name: "Red Shirt",   texture: SKTexture(imageNamed: "redshirt"),   price: 25),
-  blue  = Costume(name: "Blue Shirt",  texture: SKTexture(imageNamed: "blueshirt"),  price: 50),
-  green = Costume(name: "Green Shirt", texture: SKTexture(imageNamed: "greenshirt"), price: 75)
+  gray  = Costume(name: "Gray Shirt",  texture: tex/*SKTexture(imageNamed: "grayshirt")*/,  price:  0), // Gray shirt is our default shirt
+  red   = Costume(name: "Red Shirt",   texture: tex/*SKTexture(imageNamed: "redshirt")*/,   price: 25),
+  blue  = Costume(name: "Blue Shirt",  texture: tex/*SKTexture(imageNamed: "blueshirt")*/,  price: 50),
+  green = Costume(name: "Green Shirt", texture: tex/*SKTexture(imageNamed: "greenshirt")*/, price: 75)
   
 };
 
@@ -64,7 +65,7 @@ class Player: SKSpriteNode {
   required init?(coder aDecoder: NSCoder) { fatalError() }
 };
 
-
+// Helpers:
 class GameScene: SKScene {
 
   let player = Player(costume: Costume.gray)

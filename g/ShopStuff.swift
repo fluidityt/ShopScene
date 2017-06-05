@@ -58,6 +58,11 @@ class Shop {
 /// The scene in which we can interact with our shop and player:
 class ShopScene: SKScene {
   
+  // Helpers:
+  func addChildren(_ nodes: [SKNode]) { for node in nodes { addChild(node) } }
+  func halfHeight(_ node: SKNode) -> CGFloat { return node.frame.size.height/2 }
+  func halfWidth (_ node: SKNode) -> CGFloat { return node.frame.size.height/2 }
+
   // Properties:
   private lazy var shop: Shop = Shop(shopScene: self)
   
@@ -67,23 +72,48 @@ class ShopScene: SKScene {
   
   // Changes as you click around the screen
   private var selectedNode = SKSpriteNode()
+  private var costumeNodes = [SKSpriteNode]()
   
   // The things you click to interact with / view the shop:
   private let
-  buyNode = SKLabelNode(),
-  costumeNodes = [SKSpriteNode](),
-  playerAvatar = SKSpriteNode()
+  playerAvatarNode = SKSpriteNode(),
+  buyNode  = SKLabelNode(),
+  exitNode = SKSpriteNode()
   
   private func setUpNodes() {
-    func addChildren(_ nodes: [SKNode]) { for node in nodes { addChild(node) } }
     
+    // Buy node:
     buyNode.text = "Buy Costume"
-  }
-  
-  // Touches:
-  override func mouseDown(with event: NSEvent) {
+    buyNode.position.y = frame.minY + halfHeight(buyNode)
     
-    shop.exitShop()
+    // Costume node:
+    do {
+      for costume in Costume.masterList {
+        costumeNodes.append(SKSpriteNode(texture: costume.texture))
+      }
+      guard costumeNodes.count == Costume.masterList.count else { fatalError("duplicate nodes found") }
+      
+      costumeNodes[0].position.x = frame.minX + halfWidth(costumeNodes[0])
+      print(Costume.masterList.count)
+      var counter = 1
+      var finalIndex = costumeNodes.count - 1
+      
+      // Place nodes from left to right:
+      while counter <= finalIndex {
+        let thisNode = costumeNodes[counter]
+        let prevNode = costumeNodes[counter - 1]
+        
+        thisNode.position.x = prevNode.frame.maxX + halfWidth(thisNode) + 50
+        counter += 1
+      }
+    }
+    
+    // Player Avatar Node:
+    guard let texture = player.texture else { fatalError("player has no texture!! Is .wear()ing costume?") }
+    playerAvatarNode.texture = texture
+    playerAvatarNode.size = texture.size()
+    
+    addChildren(costumeNodes)
   }
   
   // Init:
@@ -101,4 +131,13 @@ class ShopScene: SKScene {
   
   
   
+  // Game loop:
+  override func didMove(to view: SKView) {
+   anchorPoint = CGPoint(x: 0.5, y: 0.5)
+    setUpNodes()
+  }
+  
+  override func mouseDown(with event: NSEvent) {
+    shop.exitShop()
+  }
 };
