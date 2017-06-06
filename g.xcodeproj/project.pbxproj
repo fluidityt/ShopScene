@@ -14,7 +14,9 @@
 		4DFA59831EE548D100A59E6A /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4DFA59821EE548D100A59E6A /* ViewController.swift */; };
 		4DFA59851EE548D100A59E6A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4DFA59841EE548D100A59E6A /* Assets.xcassets */; };
 		4DFA59881EE548D100A59E6A /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4DFA59861EE548D100A59E6A /* Main.storyboard */; };
-		4DFA59901EE55B7C00A59E6A /* ShopStuff.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4DFA598F1EE55B7C00A59E6A /* ShopStuff.swift */; };
+		4DFA59901EE55B7C00A59E6A /* ShopScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4DFA598F1EE55B7C00A59E6A /* ShopScene.swift */; };
+		4DFA59B11EE6C49D00A59E6A /* Costume.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4DFA59B01EE6C49D00A59E6A /* Costume.swift */; };
+		4DFA59B41EE6CFA200A59E6A /* Shop.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4DFA59B31EE6CFA200A59E6A /* Shop.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -27,7 +29,9 @@
 		4DFA59841EE548D100A59E6A /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		4DFA59871EE548D100A59E6A /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		4DFA59891EE548D100A59E6A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		4DFA598F1EE55B7C00A59E6A /* ShopStuff.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShopStuff.swift; sourceTree = "<group>"; };
+		4DFA598F1EE55B7C00A59E6A /* ShopScene.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShopScene.swift; sourceTree = "<group>"; };
+		4DFA59B01EE6C49D00A59E6A /* Costume.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Costume.swift; sourceTree = "<group>"; };
+		4DFA59B31EE6CFA200A59E6A /* Shop.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Shop.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -60,17 +64,27 @@
 		4DFA59791EE548D000A59E6A /* g */ = {
 			isa = PBXGroup;
 			children = (
+				4DFA59B21EE6CE4900A59E6A /* junk */,
+				4DFA59821EE548D100A59E6A /* ViewController.swift */,
+				4DFA59801EE548D100A59E6A /* GameScene.swift */,
+				4DFA598F1EE55B7C00A59E6A /* ShopScene.swift */,
+				4DFA59B01EE6C49D00A59E6A /* Costume.swift */,
+				4DFA59B31EE6CFA200A59E6A /* Shop.swift */,
+			);
+			path = g;
+			sourceTree = "<group>";
+		};
+		4DFA59B21EE6CE4900A59E6A /* junk */ = {
+			isa = PBXGroup;
+			children = (
 				4DFA597A1EE548D000A59E6A /* AppDelegate.swift */,
 				4DFA597C1EE548D100A59E6A /* GameScene.sks */,
 				4DFA597E1EE548D100A59E6A /* Actions.sks */,
-				4DFA59801EE548D100A59E6A /* GameScene.swift */,
-				4DFA598F1EE55B7C00A59E6A /* ShopStuff.swift */,
-				4DFA59821EE548D100A59E6A /* ViewController.swift */,
 				4DFA59841EE548D100A59E6A /* Assets.xcassets */,
 				4DFA59861EE548D100A59E6A /* Main.storyboard */,
 				4DFA59891EE548D100A59E6A /* Info.plist */,
 			);
-			path = g;
+			name = junk;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -146,8 +160,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4DFA59901EE55B7C00A59E6A /* ShopStuff.swift in Sources */,
+				4DFA59901EE55B7C00A59E6A /* ShopScene.swift in Sources */,
+				4DFA59B11EE6C49D00A59E6A /* Costume.swift in Sources */,
 				4DFA59831EE548D100A59E6A /* ViewController.swift in Sources */,
+				4DFA59B41EE6CFA200A59E6A /* Shop.swift in Sources */,
 				4DFA59811EE548D100A59E6A /* GameScene.swift in Sources */,
 				4DFA597B1EE548D000A59E6A /* AppDelegate.swift in Sources */,
 			);
@@ -302,6 +318,7 @@
 				4DFA598E1EE548D100A59E6A /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
