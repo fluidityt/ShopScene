@@ -6,68 +6,83 @@ private extension SKScene {
 }
 private func halfHeight(_ node: SKNode) -> CGFloat { return node.frame.size.height/2 }
 private func halfWidth (_ node: SKNode) -> CGFloat { return node.frame.size.height/2 }
-}
 
+
+// MARK: -
+/// Just a UI representation, does not manipulate any models.
 class CostumeSprite: SKSpriteNode {
   
-  init(color: SKColor, size: CGSize) {
-    super.init(texture: nil, color: color, size: size)
-    isUserInteractionEnabled = true
-  }
-  
-  override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+  let costume:   Costume
+  let backgroundNode
+  let nameNode
+  let priceNode
+  init(costume: Costume) {
+    self.costume   = costume
     
+    super.init(texture: costume.texture, color: .clear, size: costume.texture.size())
+    name = costume.name   // Name is needed for sorting and detecting touches.
   }
-  
+
   required init?(coder aDecoder: NSCoder) { fatalError() }
-}
+};
 
 
+// MARK: -
 /// The scene in which we can interact with our shop and player:
 class ShopScene: SKScene {
   
-  // Properties:
   private lazy var shop: Shop = Shop(shopScene: self)
   
   let previousGameScene: GameScene
   
   var player: Player { return self.previousGameScene.player }    // The player is actually still in the other scene, not this one
   
-  private var selectedNode = SKSpriteNode()      // Changes as you click around the screen
-  private var costumeNodes = [SKSpriteNode]()    // All costume textures will be node-ified here
+  private var costumeNodes = [CostumeSprite]()                   // All costume textures will be node-ified here
+  lazy private(set) var selectedNode: CostumeSprite = {
+    return self.costumeNodes.first!
+  }()
   
-  private let
-  playerAvatarNode = SKSpriteNode(),
-  buyNode  = SKLabelNode(),
-  exitNode = SKLabelNode()
+  private let buyNode  = SKLabelNode(fontNamed: "Chalkduster")
+  private let exitNode = SKLabelNode(fontNamed: "Chalkduster")
   
-  private func setUpNodes() {
-    // Node names are used for determining if buttons are pressed / costumes are touched.
+  private func unselect(_ costumeNode: CostumeSprite) {
+    costumeNode.
+  }
+
+  private func select(_ costumeNode: CostumeSprite) {
+    unselect(selectedNode)
+    selectedNode = costumeNode
     
-    setupBuyNode: do {
-      buyNode.text = "Buy Costume"
-      buyNode.fontName = "Chalkduster"
-      buyNode.position.y = frame.minY + halfHeight(buyNode)
-      buyNode.name = "buy"
-    }
+  }
+  
+  
+  // MARK: - Node setup:
+  private func setUpNodes() {
+    
+    buyNode.text = "Buy Costume"
+    buyNode.name = "buynode"
+    buyNode.position.y = frame.minY + halfHeight(buyNode)
+    
+    exitNode.text = "Leave Shop"
+    exitNode.name = "exitnode"
+    exitNode.position.y = frame.maxY - halfHeight(buyNode)
     
     setupCostumeNodes: do {
-      guard Costume.allCostumes.count > 1 else { fatalError("must have at least two costumes (for while loop)") }
-      
-      func costumeSpriteNode(costume: Costume) -> SKSpriteNode {
-        let csn = SKSpriteNode(texture: costume.texture)
-        csn.name = costume.name
-        return csn
+      guard Costume.allCostumes.count > 1 else {
+        fatalError("must have at least two costumes (for while loop)")
       }
-      
-      for costume in Costume.allCostumes { costumeNodes.append(costumeSpriteNode(costume: costume)) }
-      guard costumeNodes.count == Costume.allCostumes.count else { fatalError("duplicate nodes found, or nodes are missing") }
+      for costume in Costume.allCostumes {
+        costumeNodes.append(CostumeSprite(costume: costume))
+      }
+      guard costumeNodes.count == Costume.allCostumes.count else {
+        fatalError("duplicate nodes found, or nodes are missing")
+      }
       
       func findStartingPosition(offset: CGFloat, yPos: CGFloat) -> CGPoint {   // Find the correct position to have all costumes centered on screen.
         let
         count = CGFloat(costumeNodes.count),
         totalOffsets = (count - 1) * offset,
-        textureWidth = Costume.list.gray.texture.size().width,    // All textures must be same width for centering to work.
+        textureWidth = Costume.list.gray.texture.size().width,                 // All textures must be same width for centering to work.
         totalWidth = (textureWidth * count) + totalOffsets
         
         let measurementNode = SKShapeNode(rectOf: CGSize(width: totalWidth, height: 0))
@@ -89,26 +104,12 @@ class ShopScene: SKScene {
       }
     }
     
-      setupPlayerAvatarNode: do {
-        guard let texture = player.texture else { fatalError("player has no texture!! Is .wear()ing costume?") }
-        playerAvatarNode.texture = texture
-        playerAvatarNode.size = texture.size()
-        playerAvatarNode.position.y += 200
-      }
-      
-      setupExitNode: do {
-        exitNode.text = "Leave Shop"
-        exitNode.fontName = "Chalkduster"
-        exitNode.position.y = frame.maxY - halfHeight(buyNode)
-      }
-      
-      finallyAddThemAllToScene: do {
-        addChildren(costumeNodes)
-        addChildren([playerAvatarNode, buyNode, exitNode])
-      }
-    }
+    addChildren(costumeNodes)
+    addChildren([buyNode, exitNode])
+    
+  }
   
-  // Init:
+  // MARK: - Init:
   init(previousGameScene: GameScene) {
     self.previousGameScene = previousGameScene
     super.init(size: previousGameScene.size)
@@ -119,27 +120,36 @@ class ShopScene: SKScene {
   
   deinit { print("shopscene: if you don't see this message when exiting shop then you have a retain cycle") }
   
-  // Game loop:
+  // MARK: - Game loop:
   override func didMove(to view: SKView) {
     anchorPoint = CGPoint(x: 0.5, y: 0.5)
     setUpNodes()
   }
 
-  // Touch handling:
+  // MARK: - Touch handling:
 
   // I'm choosing to have the buttons activated by searching for name here. You can also
   // subclass a node and have them do actions on their own when clicked.
   override func mouseDown(with event: NSEvent) {
-    // shop.exitShop()
     
     let location = event.location(in: self)
+    let clickedNode     = atPoint(location)
     
-    // Check if we clicked a costume:
+    if clickedNode is SKLabelNode {
+      if clickedNode.name == "exitnode" { view!.presentScene(previousGameScene) }
+    }
+
+    guard let clickedCostume = clickedNode as? CostumeSprite else {
+      return  // We have nothing else on the screen to interact with except costumes
+    }
+    
     for node in costumeNodes {
-      guard let name = atPoint(location).name else { continue }
-      if name == node.name {
-          selectedNode = node
+      
+      if node.name == clickedCostume.name {
+        selectedNode = clickedCostume
       }
+      
+      
     }
     
   }

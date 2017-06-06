@@ -41,9 +41,7 @@ class Shop {
     }
     else { availableCostumes.append(costume) }
   }
-  
-  func exitShop() { scene.view!.presentScene(scene.previousGameScene) }
-  
+    
   init(shopScene: ShopScene) { self.scene = shopScene }
   
   deinit { print("shop: if you don't see this message when exiting shop then you have a retain cycle") }
