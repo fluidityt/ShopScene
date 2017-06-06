@@ -31,7 +31,7 @@ struct Costume {
     Costume.allCostumes.append(self)
   }
   
-  private static let (tex1, tex2, tex3, tex4) = makeTestTexture()  // Just a test needed to be deleted when you have actual assets
+  private static let (tex1, tex2, tex3, tex4) = makeTestTexture()  // Just a test needed to be deleted when you have actual assets.
   
   static let list = (
     // Hard-code any new costumes you create here (this is a "master list" of costumes)
@@ -46,13 +46,14 @@ struct Costume {
 };
 
 func == (lhs: Costume, rhs: Costume) -> Bool {
-  // The reason why you need unique names
+  // The reason why you need unique names:
   if lhs.name == rhs.name { return true }
   else { return false }
 }
 
 extension Array {
-  // Makes using our costume array in ShopScene easier
+  // FIXME: does nothing!!
+  // Makes using our costume array in ShopScene easier:
   func contains(_ costume: Costume) -> Bool {
     return false
   }

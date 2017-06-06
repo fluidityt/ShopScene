@@ -3,17 +3,22 @@
 
 import SpriteKit
 
-
 /// Our model class to be used inside of our ShopScene:
 class Shop {
   
-  weak private(set) var scene: ShopScene!     // The scene in which this shop will be called from
+  weak private(set) var scene: ShopScene!     // The scene in which this shop will be called from.
   
   var player: Player { return scene.player }
   
-  var availableCostumes: [Costume] = [Costume.list.red, Costume.list.blue]   // (The green shirt wont become available until the player has cleared 2 levels)
+  var availableCostumes: [Costume] = [Costume.list.red, Costume.list.blue]   // (The green shirt wont become available until the player has cleared 2 levels).
   
   var soldCostumes: [Costume] = [Costume.defaultCostume]
+  
+  func wearCostume(_ costume: Costume) {
+    guard soldCostumes.contains(costume) else { fatalError("trying to wear a costume you don't own") }
+    player.costume = costume
+    player.texture = costume.texture
+  }
   
   func canBuyCostume(_ costume: Costume) -> Bool {
     if player.coins < costume.price        { return false }
@@ -22,13 +27,7 @@ class Shop {
     else                                   { return true  }
   }
   
-  func wearCostume(_ costume: Costume) {
-    guard soldCostumes.contains(costume) else { fatalError("trying to wear a costume you don't own") }
-    player.costume = costume
-    player.texture = costume.texture
-  }
-  
-  func buyCostume(_ costume: Costume) {    // Only call this after checking canBuyCostume(), or you may have errors
+  func buyCostume(_ costume: Costume) {    // Only call this after checking canBuyCostume(), or you may have errors.
     player.coins -= costume.price
     soldCostumes.append(costume)
     wearCostume(costume)

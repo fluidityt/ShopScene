@@ -35,9 +35,9 @@ class ShopScene: SKScene {
   
   let previousGameScene: GameScene
   
-  var player: Player { return self.previousGameScene.player }    // The player is actually still in the other scene, not this one
+  var player: Player { return self.previousGameScene.player }    // The player is actually still in the other scene, not this one.
   
-  private var costumeNodes = [CostumeSprite]()                   // All costume textures will be node-ified here
+  private var costumeNodes = [CostumeSprite]()                   // All costume textures will be node-ified here.
   lazy private(set) var selectedNode: CostumeSprite = {
     return self.costumeNodes.first!
   }()
@@ -48,7 +48,7 @@ class ShopScene: SKScene {
   private func unselect(_ costumeNode: CostumeSprite) {
     costumeNode.
   }
-
+  
   private func select(_ costumeNode: CostumeSprite) {
     unselect(selectedNode)
     selectedNode = costumeNode
@@ -106,7 +106,6 @@ class ShopScene: SKScene {
     
     addChildren(costumeNodes)
     addChildren([buyNode, exitNode])
-    
   }
   
   // MARK: - Init:
@@ -125,32 +124,42 @@ class ShopScene: SKScene {
     anchorPoint = CGPoint(x: 0.5, y: 0.5)
     setUpNodes()
   }
-
+  
   // MARK: - Touch handling:
-
+  
   // I'm choosing to have the buttons activated by searching for name here. You can also
   // subclass a node and have them do actions on their own when clicked.
   override func mouseDown(with event: NSEvent) {
     
-    let location = event.location(in: self)
-    let clickedNode     = atPoint(location)
+    let location    = event.location(in: self)
+    let clickedNode = atPoint(location)
     
-    if clickedNode is SKLabelNode {
-      if clickedNode.name == "exitnode" { view!.presentScene(previousGameScene) }
-    }
-
-    guard let clickedCostume = clickedNode as? CostumeSprite else {
-      return  // We have nothing else on the screen to interact with except costumes
-    }
-    
-    for node in costumeNodes {
+    switch clickedNode {
       
-      if node.name == clickedCostume.name {
-        selectedNode = clickedCostume
+    case is ShopScene:
+      return
+      
+    case is SKLabelNode:
+      if clickedNode.name == "exitnode" { view!.presentScene(previousGameScene) }
+      
+      if clickedNode.name == "buynode"  {
+        if shop.canBuyCostume(selectedNode.costume) {
+          shop.buyCostume(selectedNode.costume)
+        } else {
+          guard shop.soldCostumes.contains(selectedNode.costume) else { return }
+          // wear it and change some other gfx?
+        }
       }
       
       
+    case let clickedCostume as CostumeSprite:
+      for node in costumeNodes {
+        if node.name == clickedCostume.name {
+          select(clickedCostume)
+        }
+      }
+      
+    default: ()
     }
-    
   }
 };
