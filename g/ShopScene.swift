@@ -17,17 +17,19 @@ private func halfWidth (_ node: SKNode) -> CGFloat { return node.frame.size.heig
 // MARK: -
 /// Just a UI representation, does not manipulate any models.
 final class CostumeNode: SKSpriteNode {
-  
+  // FIXME: Why does the gray shirt fucking 0 get blotted out?
   let costume:   Costume
+  weak private(set) var player: Player
   
-   private(set) var backgroundNode = SKSpriteNode()
-   private(set) var nameNode       = SKLabelNode()
-   private(set) var priceNode      = SKLabelNode()
+  private(set) var
+  backgroundNode = SKSpriteNode(),
+  nameNode       = SKLabelNode(),
+  priceNode      = SKLabelNode()
   
   private func label(text: String, size: CGSize) -> SKLabelNode {
     let label = SKLabelNode(text: text)
     label.fontName = "Chalkduster"
-    // deform to fit:
+    // FIXME: deform to fit:
     return label
   }
   
@@ -36,6 +38,7 @@ final class CostumeNode: SKSpriteNode {
     let circle = SKShapeNode(circleOfRadius: size.width)
     circle.fillColor = .yellow
     let bkg = SKSpriteNode(texture: SKView().texture(from: circle))
+    bkg.zPosition -= 1
     
     let name = label(text: "\(costume.name)", size: size)
     name.position.y = frame.maxY + name.frame.size.height
@@ -47,28 +50,46 @@ final class CostumeNode: SKSpriteNode {
     (backgroundNode, nameNode, priceNode) = (bkg, name, price)
   }
   
-  init(costume: Costume) {
-    
-    
+  init(costume: Costume, player: Player) {
+    self.player = player
     self.costume = costume
+    
     let size = costume.texture.size()
-
     super.init(texture: costume.texture, color: .clear, size: size)
+    
     name = costume.name   // Name is needed for sorting and detecting touches.
     
     setupNodes(with: size)
     becomesUnselected()
-  
-    
   }
-
-  // For animation purposes:
-  func becomesSelected() {
-    backgroundNode.alpha = 1
+  
+  private func setPriceText() {
+    
+    func playerCanAfford() {
+      priceNode.text = "\(costume.price)"
+      priceNode.fontColor = .white
+    }
+    
+    func playerCantAfford() {
+      priceNode.text = "\(costume.price)"
+      priceNode.fontColor = .red
+    }
+    
+    func playerOwns() {
+      priceNode.text = ""
+      priceNode.fontColor = .white
+    }
+    
+    if
+  }
+  func becomesSelected() {    // For animation / sound purposes (could also just be handled by the ShopScene).
+    backgroundNode.run(.fadeAlpha(to: 0.75, duration: 0.25))
+    // insert sound if desired.
   }
   
   func becomesUnselected() {
-    backgroundNode.alpha = 0
+    backgroundNode.run(.fadeAlpha(to: 0, duration: 0.10))
+    // insert sound if desired.
   }
   
   required init?(coder aDecoder: NSCoder) { fatalError() }
@@ -91,21 +112,10 @@ class ShopScene: SKScene {
     return self.costumeNodes.first!
   }()
   
-  private let buyNode  = SKLabelNode(fontNamed: "Chalkduster")
-  private let exitNode = SKLabelNode(fontNamed: "Chalkduster")
-  
-  private func unselect(_ costumeNode: CostumeNode) {
-    selectedNode = nil
-    costumeNode.becomesUnselected()
-  }
-  
-  private func select(_ costumeNode: CostumeNode) {
-    unselect(selectedNode!)
-    selectedNode = costumeNode
-    costumeNode.becomesUnselected()
-    
-  }
-  
+  private let
+  buyNode  = SKLabelNode(fontNamed: "Chalkduster"),
+  coinNode = SKLabelNode(fontNamed: "Chalkduster"),
+  exitNode = SKLabelNode(fontNamed: "Chalkduster")
   
   // MARK: - Node setup:
   private func setUpNodes() {
@@ -114,6 +124,10 @@ class ShopScene: SKScene {
     buyNode.name = "buynode"
     buyNode.position.y = frame.minY + halfHeight(buyNode)
     
+    coinNode.text = "Coins: \(player.coins)"
+    coinNode.name = "coinnode"
+    coinNode.position = CGPoint(x: frame.minX + halfWidth(coinNode), y: frame.minY + halfHeight(coinNode))
+  
     exitNode.text = "Leave Shop"
     exitNode.name = "exitnode"
     exitNode.position.y = frame.maxY - halfHeight(buyNode)
@@ -158,7 +172,7 @@ class ShopScene: SKScene {
     }
     
     addChildren(costumeNodes)
-    addChildren([buyNode, exitNode])
+    addChildren([buyNode, coinNode, exitNode])
   }
   
   // MARK: - Init:
@@ -176,9 +190,41 @@ class ShopScene: SKScene {
   override func didMove(to view: SKView) {
     anchorPoint = CGPoint(x: 0.5, y: 0.5)
     setUpNodes()
+    select(costumeNodes.first!)
   }
   
   // MARK: - Touch handling:
+  private func unselect(_ costumeNode: CostumeNode) {
+    selectedNode = nil
+    costumeNode.becomesUnselected()
+  }
+  
+  // Adjusts UI elements:
+  private func select(_ costumeNode: CostumeNode) {
+    unselect(selectedNode!)
+    selectedNode = costumeNode
+    costumeNode.becomesSelected()
+  
+    if shop.soldCostumes.contains(costumeNode.costume) {      // Wear selected costume if owned.
+      player.costume = costumeNode.costume
+      buyNode.text = "Bought Costume"
+      buyNode.alpha = 1
+    }
+      
+    else if player.coins < costumeNode.costume.price { // Can't afford costume.
+      buyNode.text = "Buy Costume"
+      buyNode.alpha = 0.5
+    }
+    
+    else {                                            // Player can buy costume.
+      buyNode.text = "Buy Costume"
+      buyNode.alpha = 1
+      }
+  }
+
+  override func update(_ currentTime: TimeInterval) {
+
+  }
   
   // I'm choosing to have the buttons activated by searching for name here. You can also
   // subclass a node and have them do actions on their own when clicked.
@@ -190,30 +236,32 @@ class ShopScene: SKScene {
     
     switch clickedNode {
       
-    case is ShopScene:
-      return
-      
-    case is SKLabelNode:
-      if clickedNode.name == "exitnode" { view!.presentScene(previousGameScene) }
-      
-      if clickedNode.name == "buynode"  {
-        if shop.canBuyCostume(selectedNode.costume) {
-          shop.buyCostume(selectedNode.costume)
-        } else {
-          guard shop.soldCostumes.contains(selectedNode.costume) else { return }
-          // wear it and change some other gfx?
+      // Clicked empty space:
+      case is ShopScene:
+        return
+        
+      // Clicked Buy / Leave:
+      case is SKLabelNode:
+        if clickedNode.name == "exitnode" { view!.presentScene(previousGameScene) }
+        
+        if clickedNode.name == "buynode"  {
+          
+          if shop.canBuyCostume(selectedNode.costume) {
+            shop.buyCostume(selectedNode.costume)
+            coinNode.text = "Coins: \(player.coins)"
+            buyNode.text = "Bought"
+          }
         }
-      }
-      
-      
-    case let clickedCostume as CostumeNode:
-      for node in costumeNodes {
-        if node.name == clickedCostume.name {
-          select(clickedCostume)
+        
+      // Clicked a costume:
+      case let clickedCostume as CostumeNode:
+        for node in costumeNodes {
+          if node.name == clickedCostume.name {
+            select(clickedCostume)
+          }
         }
+        
+      default: ()
       }
-      
-    default: ()
-    }
   }
 };

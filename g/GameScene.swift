@@ -6,6 +6,8 @@ final class Player: SKSpriteNode {
   var coins = 0
   var costume: Costume
   var levelsCompleted = 0
+
+  var ownedCostumes: [Costume] = [Costume.list.gray]      // FIXME: This should be a Set, but too lazy to do Hashable.
   
   init(costume: Costume) {
     self.costume = costume
@@ -13,7 +15,7 @@ final class Player: SKSpriteNode {
   }
   
   func getCoins(_ amount: Int) {
-    guard let scene = self.scene as? GameScene else {     // This is very specific code just for this example
+    guard let scene = self.scene as? GameScene else {     // This is very specific code just for this example.
       fatalError("only call this func after scene has been set up")
     }
     
@@ -22,13 +24,24 @@ final class Player: SKSpriteNode {
   }
   
   func loseCoins(_ amount: Int) {
-    guard let scene = self.scene as? GameScene else {     // This is very specific code just for this example
+    guard let scene = self.scene as? GameScene else {     // This is very specific code just for this example.
       fatalError("only call this func after scene has been set up")
     }
     
     coins -= amount
     scene.coinLabel.text = "Coins: \(coins)"
   }
+  
+  func getCostume(_ costume: Costume) {
+    
+  }
+  
+  func wearCostume(_ costume: Costume) {
+    guard ownedCostumes.contains(costume) else { fatalError("trying to wear a costume you don't own") }
+    self.costume = costume
+    self.texture = costume.texture
+  }
+  
   
   required init?(coder aDecoder: NSCoder) { fatalError() }
 };

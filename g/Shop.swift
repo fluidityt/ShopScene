@@ -12,14 +12,8 @@ class Shop {
   
   var availableCostumes: [Costume] = [Costume.list.red, Costume.list.blue]   // (The green shirt wont become available until the player has cleared 2 levels).
   
-  var soldCostumes: [Costume] = [Costume.defaultCostume]
-  
-  func wearCostume(_ costume: Costume) {
-    guard soldCostumes.contains(costume) else { fatalError("trying to wear a costume you don't own") }
-    player.costume = costume
-    player.texture = costume.texture
-  }
-  
+  // var soldCostumes: [Costume] = [Costume.defaultCostume] // Implement something with this if you want to exclude previously bought items from the store.
+
   func canBuyCostume(_ costume: Costume) -> Bool {
     if player.coins < costume.price        { return false }
     else if soldCostumes.contains(costume) { return false }
@@ -27,16 +21,16 @@ class Shop {
     else                                   { return true  }
   }
   
-  func buyCostume(_ costume: Costume) {    // Only call this after checking canBuyCostume(), or you may have errors.
+  /// Only call this after checking canBuyCostume(), or you likely will have errors:
+  func sellCostume(_ costume: Costume) {
     player.coins -= costume.price
     soldCostumes.append(costume)
-    wearCostume(costume)
+    player.wearCostume(costume)
   }
   
   func newCostumeBecomesAvailable(_ costume: Costume) {
-    
-    if availableCostumes.contains(costume) || soldCostumes.contains(costume) {
-      fatalError("trying to add a costume that is already available or sold!")
+    if availableCostumes.contains(costume) /*|| soldCostumes.contains(costume)*/ {
+      fatalError("trying to add a costume that is already available (or sold!)")
     }
     else { availableCostumes.append(costume) }
   }
