@@ -51,10 +51,4 @@ func == (lhs: Costume, rhs: Costume) -> Bool {
   else { return false }
 }
 
-extension Array {
-  // FIXME: does nothing!!
-  // Makes using our costume array in ShopScene easier:
-  func contains(_ costume: Costume) -> Bool {
-    return false
-  }
-}
+

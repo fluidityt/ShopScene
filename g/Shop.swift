@@ -14,22 +14,22 @@ class Shop {
   
   // var soldCostumes: [Costume] = [Costume.defaultCostume] // Implement something with this if you want to exclude previously bought items from the store.
 
-  func canBuyCostume(_ costume: Costume) -> Bool {
-    if player.coins < costume.price        { return false }
-    else if soldCostumes.contains(costume) { return false }
-    else if player.costume == costume      { return false }
-    else                                   { return true  }
+  func canSellCostume(_ costume: Costume) -> Bool {
+    if player.coins < costume.price                { return false }
+    else if player.hasCostume(costume)             { return false }
+    else if player.costume == costume              { return false }
+    else                                           { return true  }
   }
   
   /// Only call this after checking canBuyCostume(), or you likely will have errors:
   func sellCostume(_ costume: Costume) {
     player.coins -= costume.price
-    soldCostumes.append(costume)
+    player.getCostume(costume)
     player.wearCostume(costume)
   }
   
   func newCostumeBecomesAvailable(_ costume: Costume) {
-    if availableCostumes.contains(costume) /*|| soldCostumes.contains(costume)*/ {
+    if availableCostumes.contains(where: {$0.name == costume.name}) /*|| soldCostumes.contains(costume)*/ {
       fatalError("trying to add a costume that is already available (or sold!)")
     }
     else { availableCostumes.append(costume) }

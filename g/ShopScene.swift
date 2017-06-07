@@ -19,7 +19,8 @@ private func halfWidth (_ node: SKNode) -> CGFloat { return node.frame.size.heig
 final class CostumeNode: SKSpriteNode {
   // FIXME: Why does the gray shirt fucking 0 get blotted out?
   let costume:   Costume
-  weak private(set) var player: Player
+  
+  weak private(set) var player: Player!
   
   private(set) var
   backgroundNode = SKSpriteNode(),
@@ -80,7 +81,6 @@ final class CostumeNode: SKSpriteNode {
       priceNode.fontColor = .white
     }
     
-    if
   }
   func becomesSelected() {    // For animation / sound purposes (could also just be handled by the ShopScene).
     backgroundNode.run(.fadeAlpha(to: 0.75, duration: 0.25))
@@ -93,6 +93,8 @@ final class CostumeNode: SKSpriteNode {
   }
   
   required init?(coder aDecoder: NSCoder) { fatalError() }
+  
+  deinit { print("costumenode: if you don't see this then you have a retain cycle") }
 };
 
 
@@ -100,7 +102,7 @@ final class CostumeNode: SKSpriteNode {
 /// The scene in which we can interact with our shop and player:
 class ShopScene: SKScene {
   
-  private lazy var shop: Shop = Shop(shopScene: self)
+  weak private var shop: Shop?
   
   let previousGameScene: GameScene
   
@@ -137,7 +139,7 @@ class ShopScene: SKScene {
         fatalError("must have at least two costumes (for while loop)")
       }
       for costume in Costume.allCostumes {
-        costumeNodes.append(CostumeNode(costume: costume))
+        costumeNodes.append(CostumeNode(costume: costume, player: player))
       }
       guard costumeNodes.count == Costume.allCostumes.count else {
         fatalError("duplicate nodes found, or nodes are missing")
@@ -179,7 +181,8 @@ class ShopScene: SKScene {
   init(previousGameScene: GameScene) {
     self.previousGameScene = previousGameScene
     super.init(size: previousGameScene.size)
-    print("new scene")
+    self.shop = Shop(shopScene: self)
+    if shop == nil { fatalError() }
   }
   
   required init?(coder aDecoder: NSCoder) { fatalError("init(coder:) has not been implemented")}
@@ -205,7 +208,7 @@ class ShopScene: SKScene {
     selectedNode = costumeNode
     costumeNode.becomesSelected()
   
-    if shop.soldCostumes.contains(costumeNode.costume) {      // Wear selected costume if owned.
+    if player.hasCostume(costumeNode.costume) {      // Wear selected costume if owned.
       player.costume = costumeNode.costume
       buyNode.text = "Bought Costume"
       buyNode.alpha = 1
@@ -245,9 +248,9 @@ class ShopScene: SKScene {
         if clickedNode.name == "exitnode" { view!.presentScene(previousGameScene) }
         
         if clickedNode.name == "buynode"  {
-          
-          if shop.canBuyCostume(selectedNode.costume) {
-            shop.buyCostume(selectedNode.costume)
+          guard let shop = shop else { fatalError("where did the shop go?") }
+          if shop.canSellCostume(selectedNode.costume) {
+            shop.sellCostume(selectedNode.costume)
             coinNode.text = "Coins: \(player.coins)"
             buyNode.text = "Bought"
           }
