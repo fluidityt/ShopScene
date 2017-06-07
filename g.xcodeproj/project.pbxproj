@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4DC00A6F1EE813EF00DBDB4B /* Player.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4DC00A6E1EE813EF00DBDB4B /* Player.swift */; };
+		4DC00A711EE8187900DBDB4B /* CostumeNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4DC00A701EE8187900DBDB4B /* CostumeNode.swift */; };
 		4DFA597B1EE548D000A59E6A /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4DFA597A1EE548D000A59E6A /* AppDelegate.swift */; };
 		4DFA597D1EE548D100A59E6A /* GameScene.sks in Resources */ = {isa = PBXBuildFile; fileRef = 4DFA597C1EE548D100A59E6A /* GameScene.sks */; };
 		4DFA597F1EE548D100A59E6A /* Actions.sks in Resources */ = {isa = PBXBuildFile; fileRef = 4DFA597E1EE548D100A59E6A /* Actions.sks */; };
@@ -20,6 +22,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		4DC00A6E1EE813EF00DBDB4B /* Player.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Player.swift; sourceTree = "<group>"; };
+		4DC00A701EE8187900DBDB4B /* CostumeNode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CostumeNode.swift; sourceTree = "<group>"; };
 		4DFA59771EE548D000A59E6A /* g.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = g.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4DFA597A1EE548D000A59E6A /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		4DFA597C1EE548D100A59E6A /* GameScene.sks */ = {isa = PBXFileReference; lastKnownFileType = file.sks; path = GameScene.sks; sourceTree = "<group>"; };
@@ -67,8 +71,10 @@
 				4DFA59B21EE6CE4900A59E6A /* junk */,
 				4DFA59821EE548D100A59E6A /* ViewController.swift */,
 				4DFA59801EE548D100A59E6A /* GameScene.swift */,
+				4DC00A6E1EE813EF00DBDB4B /* Player.swift */,
 				4DFA598F1EE55B7C00A59E6A /* ShopScene.swift */,
 				4DFA59B01EE6C49D00A59E6A /* Costume.swift */,
+				4DC00A701EE8187900DBDB4B /* CostumeNode.swift */,
 				4DFA59B31EE6CFA200A59E6A /* Shop.swift */,
 			);
 			path = g;
@@ -162,8 +168,10 @@
 			files = (
 				4DFA59901EE55B7C00A59E6A /* ShopScene.swift in Sources */,
 				4DFA59B11EE6C49D00A59E6A /* Costume.swift in Sources */,
+				4DC00A711EE8187900DBDB4B /* CostumeNode.swift in Sources */,
 				4DFA59831EE548D100A59E6A /* ViewController.swift in Sources */,
 				4DFA59B41EE6CFA200A59E6A /* Shop.swift in Sources */,
+				4DC00A6F1EE813EF00DBDB4B /* Player.swift in Sources */,
 				4DFA59811EE548D100A59E6A /* GameScene.swift in Sources */,
 				4DFA597B1EE548D000A59E6A /* AppDelegate.swift in Sources */,
 			);
