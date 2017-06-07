@@ -1,8 +1,14 @@
 import SpriteKit
 
 // Helpers:
-private extension SKScene {
+private extension SKNode {
   func addChildren(_ nodes: [SKNode]) { for node in nodes { addChild(node) } }
+  
+  func addChildrenBehind(_ nodes: [SKNode]) { for node in nodes {
+    node.zPosition -= 2
+    addChild(node)
+    }
+  }
 }
 private func halfHeight(_ node: SKNode) -> CGFloat { return node.frame.size.height/2 }
 private func halfWidth (_ node: SKNode) -> CGFloat { return node.frame.size.height/2 }
@@ -10,19 +16,61 @@ private func halfWidth (_ node: SKNode) -> CGFloat { return node.frame.size.heig
 
 // MARK: -
 /// Just a UI representation, does not manipulate any models.
-class CostumeSprite: SKSpriteNode {
+final class CostumeNode: SKSpriteNode {
   
   let costume:   Costume
-  let backgroundNode
-  let nameNode
-  let priceNode
-  init(costume: Costume) {
-    self.costume   = costume
+  
+   private(set) var backgroundNode = SKSpriteNode()
+   private(set) var nameNode       = SKLabelNode()
+   private(set) var priceNode      = SKLabelNode()
+  
+  private func label(text: String, size: CGSize) -> SKLabelNode {
+    let label = SKLabelNode(text: text)
+    label.fontName = "Chalkduster"
+    // deform to fit:
+    return label
+  }
+  
+  private func setupNodes(with size: CGSize) {
     
-    super.init(texture: costume.texture, color: .clear, size: costume.texture.size())
+    let circle = SKShapeNode(circleOfRadius: size.width)
+    circle.fillColor = .yellow
+    let bkg = SKSpriteNode(texture: SKView().texture(from: circle))
+    
+    let name = label(text: "\(costume.name)", size: size)
+    name.position.y = frame.maxY + name.frame.size.height
+    
+    let price = label(text: "\(costume.price)", size: size)
+    price.position.y = frame.minY - price.frame.size.height
+    
+    addChildrenBehind([bkg, name, price])
+    (backgroundNode, nameNode, priceNode) = (bkg, name, price)
+  }
+  
+  init(costume: Costume) {
+    
+    
+    self.costume = costume
+    let size = costume.texture.size()
+
+    super.init(texture: costume.texture, color: .clear, size: size)
     name = costume.name   // Name is needed for sorting and detecting touches.
+    
+    setupNodes(with: size)
+    becomesUnselected()
+  
+    
   }
 
+  // For animation purposes:
+  func becomesSelected() {
+    backgroundNode.alpha = 1
+  }
+  
+  func becomesUnselected() {
+    backgroundNode.alpha = 0
+  }
+  
   required init?(coder aDecoder: NSCoder) { fatalError() }
 };
 
@@ -37,21 +85,24 @@ class ShopScene: SKScene {
   
   var player: Player { return self.previousGameScene.player }    // The player is actually still in the other scene, not this one.
   
-  private var costumeNodes = [CostumeSprite]()                   // All costume textures will be node-ified here.
-  lazy private(set) var selectedNode: CostumeSprite = {
+  private var costumeNodes = [CostumeNode]()                   // All costume textures will be node-ified here.
+  
+  lazy private(set) var selectedNode: CostumeNode? = {
     return self.costumeNodes.first!
   }()
   
   private let buyNode  = SKLabelNode(fontNamed: "Chalkduster")
   private let exitNode = SKLabelNode(fontNamed: "Chalkduster")
   
-  private func unselect(_ costumeNode: CostumeSprite) {
-    costumeNode.
+  private func unselect(_ costumeNode: CostumeNode) {
+    selectedNode = nil
+    costumeNode.becomesUnselected()
   }
   
-  private func select(_ costumeNode: CostumeSprite) {
-    unselect(selectedNode)
+  private func select(_ costumeNode: CostumeNode) {
+    unselect(selectedNode!)
     selectedNode = costumeNode
+    costumeNode.becomesUnselected()
     
   }
   
@@ -72,11 +123,13 @@ class ShopScene: SKScene {
         fatalError("must have at least two costumes (for while loop)")
       }
       for costume in Costume.allCostumes {
-        costumeNodes.append(CostumeSprite(costume: costume))
+        costumeNodes.append(CostumeNode(costume: costume))
       }
       guard costumeNodes.count == Costume.allCostumes.count else {
         fatalError("duplicate nodes found, or nodes are missing")
       }
+      
+      let offset = CGFloat(150)
       
       func findStartingPosition(offset: CGFloat, yPos: CGFloat) -> CGPoint {   // Find the correct position to have all costumes centered on screen.
         let
@@ -90,7 +143,7 @@ class ShopScene: SKScene {
         return CGPoint(x: measurementNode.frame.minX + textureWidth/2, y: yPos)
       }
       
-      costumeNodes.first!.position = findStartingPosition(offset: 50, yPos: self.frame.midY)
+      costumeNodes.first!.position = findStartingPosition(offset: offset, yPos: self.frame.midY)
       
       var counter = 1
       let finalIndex = costumeNodes.count - 1
@@ -99,7 +152,7 @@ class ShopScene: SKScene {
         let thisNode = costumeNodes[counter]
         let prevNode = costumeNodes[counter - 1]
         
-        thisNode.position.x = prevNode.frame.maxX + halfWidth(thisNode) + 50
+        thisNode.position.x = prevNode.frame.maxX + halfWidth(thisNode) + offset
         counter += 1
       }
     }
@@ -131,6 +184,7 @@ class ShopScene: SKScene {
   // subclass a node and have them do actions on their own when clicked.
   override func mouseDown(with event: NSEvent) {
     
+    guard let selectedNode = selectedNode else { fatalError() }
     let location    = event.location(in: self)
     let clickedNode = atPoint(location)
     
@@ -152,7 +206,7 @@ class ShopScene: SKScene {
       }
       
       
-    case let clickedCostume as CostumeSprite:
+    case let clickedCostume as CostumeNode:
       for node in costumeNodes {
         if node.name == clickedCostume.name {
           select(clickedCostume)
