@@ -38,7 +38,7 @@ final class Player: SKSpriteNode {
   }
   
   func getCostume(_ costume: Costume) {
-    if hasCostume(costume) == false { fatalError("trying to get costume already owned") }
+    if hasCostume(costume) { fatalError("trying to get costume already owned") }
     else { ownedCostumes.append(costume) }
   }
   

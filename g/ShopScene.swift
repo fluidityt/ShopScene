@@ -11,7 +11,7 @@ private extension SKNode {
   }
 }
 private func halfHeight(_ node: SKNode) -> CGFloat { return node.frame.size.height/2 }
-private func halfWidth (_ node: SKNode) -> CGFloat { return node.frame.size.height/2 }
+private func halfWidth (_ node: SKNode) -> CGFloat { return node.frame.size.width/2 }
 
 
 // MARK: -
@@ -81,14 +81,21 @@ final class CostumeNode: SKSpriteNode {
       priceNode.fontColor = .white
     }
     
+    if player.hasCostume(self.costume)         { playerOwns() }
+    else if player.coins < self.costume.price  { playerCantAfford() }
+    else if player.coins >= self.costume.price { playerCanAfford() }
+    else                                       { fatalError() }
   }
+  
   func becomesSelected() {    // For animation / sound purposes (could also just be handled by the ShopScene).
     backgroundNode.run(.fadeAlpha(to: 0.75, duration: 0.25))
+    setPriceText()
     // insert sound if desired.
   }
   
   func becomesUnselected() {
     backgroundNode.run(.fadeAlpha(to: 0, duration: 0.10))
+    setPriceText()
     // insert sound if desired.
   }
   
@@ -102,7 +109,7 @@ final class CostumeNode: SKSpriteNode {
 /// The scene in which we can interact with our shop and player:
 class ShopScene: SKScene {
   
-  weak private var shop: Shop?
+  lazy private(set) var shop: Shop = { return Shop(shopScene: self) }()
   
   let previousGameScene: GameScene
   
@@ -129,10 +136,10 @@ class ShopScene: SKScene {
     coinNode.text = "Coins: \(player.coins)"
     coinNode.name = "coinnode"
     coinNode.position = CGPoint(x: frame.minX + halfWidth(coinNode), y: frame.minY + halfHeight(coinNode))
-  
+    
     exitNode.text = "Leave Shop"
     exitNode.name = "exitnode"
-    exitNode.position.y = frame.maxY - halfHeight(buyNode)
+    exitNode.position.y = frame.maxY - buyNode.frame.height
     
     setupCostumeNodes: do {
       guard Costume.allCostumes.count > 1 else {
@@ -181,8 +188,6 @@ class ShopScene: SKScene {
   init(previousGameScene: GameScene) {
     self.previousGameScene = previousGameScene
     super.init(size: previousGameScene.size)
-    self.shop = Shop(shopScene: self)
-    if shop == nil { fatalError() }
   }
   
   required init?(coder aDecoder: NSCoder) { fatalError("init(coder:) has not been implemented")}
@@ -193,7 +198,11 @@ class ShopScene: SKScene {
   override func didMove(to view: SKView) {
     anchorPoint = CGPoint(x: 0.5, y: 0.5)
     setUpNodes()
-    select(costumeNodes.first!)
+    
+    select(costumeNodes.first!)                           // Default selection.
+    for node in costumeNodes {
+      if node.costume == player.costume { select(node) }
+    }
   }
   
   // MARK: - Touch handling:
@@ -248,7 +257,7 @@ class ShopScene: SKScene {
         if clickedNode.name == "exitnode" { view!.presentScene(previousGameScene) }
         
         if clickedNode.name == "buynode"  {
-          guard let shop = shop else { fatalError("where did the shop go?") }
+          // guard let shop = shop else { fatalError("where did the shop go?") }
           if shop.canSellCostume(selectedNode.costume) {
             shop.sellCostume(selectedNode.costume)
             coinNode.text = "Coins: \(player.coins)"
